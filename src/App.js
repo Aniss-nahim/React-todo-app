@@ -1,39 +1,68 @@
 import Header from './components/Header'
 import Todos from './components/Todos'
 import AddTodo from './components/AddTodo'
-import { useState } from 'react'
-import {v4 as uuid} from 'uuid'
+import { useState, useEffect} from 'react'
 
 const App = () => {
-  const [todos, setTodos] = useState([
-    {
-      id : 1,
-      title : 'Todo one',
-      completed : false
-    },
-    {
-      id : 2,
-      title : 'Todo two',
-      completed : true
-    }
-  ])
+  const [todos, setTodos] = useState([]);
+  
+  useEffect( () => {
+      getTodos();
+  }, [])
+
+  // fetch All todos
+  const getTodos = async () => {
+    const response = await fetch('http://localhost:5000/todos');
+    const data = await response.json();
+    setTodos(data);
+  }
+
+  // find todo by id
+  const getTodo = async (id) => {
+    const response = await fetch(`http://localhost:5000/todos/${id}`);
+    const todo = await response.json();
+    return todo;
+  }
 
   const [showAddForm, setShowAddForm] =useState(false);
 
   // Add Todo
-  const addTodo = (todo) => {
-    setTodos([...todos, {...todo, id: uuid()}])
+  const addTodo = async (todo) => {
+    const response = await fetch('http://localhost:5000/todos', {
+      method : 'POST',
+      headers : {
+        'Content-Type' : 'application/json'
+      },
+      body : JSON.stringify(todo)
+    })
+    const newTodo = await response.json();
+    setTodos([...todos, newTodo])
   }
 
   // Delete Todo
-  const deleteTodo = (id) => {
+  const deleteTodo =  async (id) => {
+    await fetch(`http://localhost:5000/todos/${id}`, {
+      method : "DELETE",
+    })
     setTodos(todos.filter((todo) => todo.id !== id))
   }
 
-  // Complete a Todo
-  const completeTodo = (id) => {
+  // Complete or uncomplete a Todo
+  const completeTodo = async (id) => {
+    const todoTarget = await getTodo(id);
+    const updatedTodo = { ...todoTarget, completed : !todoTarget.completed } 
+    const response = await fetch(`http://localhost:5000/todos/${id}`,{
+      method : 'PUT',
+      headers : {
+        'Content-Type' : 'application/json'
+      },
+      body : JSON.stringify(updatedTodo)
+    })
+
+    const data = await response.json();
+
     setTodos(todos.map((todo) => 
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+        todo.id === id ? data : todo
       )
     )
   }
