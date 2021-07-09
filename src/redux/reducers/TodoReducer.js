@@ -17,9 +17,13 @@ const todoReducer = (state = initState, action) => {
                 todosList : [{...action.payload}, ...state.todosList]
             }
         case actionTypes.DELETE_TODO :
-            return state.todosList.filter(todo => todo.id !== action.payload.id);
+            return { 
+                todosList : state.todosList.filter(todo => todo.id !== action.payload.id)
+            };
         case actionTypes.UPDATE_TODO :
-            return state.todosList.map(todo => todo.id === action.payload.id ? action.payload : todo);         
+            return { 
+                todosList : state.todosList.map(todo => todo.id === action.payload.id ? action.payload : todo)
+            };        
         default : return state;
     }
 }
