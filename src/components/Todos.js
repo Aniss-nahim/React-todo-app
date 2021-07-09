@@ -1,24 +1,31 @@
-import PropTypes from 'prop-types'
 import Todo from './Todo';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchTodos } from '../redux/actions/TodoActions';
 
-const Todos = ({ todos, onDelete, onCompleted }) => {
+const Todos = () => {
+    const todos = useSelector((state) => state.todoReducer.todosList)
+    const dispatcher = useDispatch();
+
+    useEffect(() => {
+        const loading = async () => {
+          await dispatcher(fetchTodos());
+        }
+        loading();
+    }, [dispatcher])
+
     return (
         <div className="list-group container">
-        {
-          todos.map((todo) => (
-            <Todo todo={todo}  key={todo.id} onDelete={onDelete} onCompleted={onCompleted}/>
-          ))
+        { todos.length > 0 ?
+            todos.map((todo) => (
+              <Todo todo={todo}  key={todo.id}/>
+            )) : 
+            <div className="alert alert-warning" role="alert">
+              Please add new task
+            </div>
         }
         </div>
     )
 }
 
-Todos.defaultProps = {
-    todos : []
-}
-
-Todos.propTypes = {
-    todos : PropTypes.array 
-}
-
-export default Todos
+export default Todos;
