@@ -1,9 +1,13 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { addTodo } from "../redux/actions/TodoActions";
 
-const AddTodo = ({addTodo}) => {
+const AddTodo = () => {
 
     const [title, setTitle] = useState('');
     const [completed, setCompleted] = useState(false);
+
+    const dispatcher = useDispatch();
 
     const submit = (e) => {
         e.preventDefault();
@@ -12,7 +16,7 @@ const AddTodo = ({addTodo}) => {
             return;
         }
 
-        addTodo({title, completed});
+        dispatcher(addTodo({title, completed}));
         setTitle('');
         setCompleted(false);
     }
